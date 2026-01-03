@@ -1,0 +1,33 @@
+# Virtual environment
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# IDE
+.vscode/
+.idea/
+
+# Backend specific
+backend/uploads/
+*.db
+*.sqlite
+
+# Frontend (if using npm)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Videos
+*.mp4
+*.avi
+*.mov
+
+# OS
+.DS_Store
+Thumbs.db

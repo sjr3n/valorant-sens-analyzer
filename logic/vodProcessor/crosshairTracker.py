@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Add project root to Python path
+projectRoot = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, projectRoot)
+
 import cv2
 import numpy as np
 
@@ -216,31 +223,34 @@ def visualizeCrosshairPath(videoPath, crosshairPositions, outputPath):
 
 
 if __name__ == "__main__":
-    # Test the tracker with a sample video
-    # You'll need to adjust these color bounds based on your crosshair
+    from logic.vodProcessor.videoUtils import saveTrackingData, getVideoMetadata
     
-    # Common Valorant crosshair colors in BGR:
-    # Cyan/Light Blue: lower=(100, 200, 200), upper=(255, 255, 255)
-    # Green: lower=(0, 200, 0), upper=(100, 255, 100)
-    # White: lower=(200, 200, 200), upper=(255, 255, 255)
-    # Yellow: lower=(0, 200, 200), upper=(100, 255, 255)
+    # Crosshair color bounds - GREEN
+    lowerBound = np.array([0, 200, 0])
+    upperBound = np.array([100, 255, 100])
     
-    lowerBound = np.array([174, 145, 27])   # BGR: subtract ~30 from each
-    upperBound = np.array([234, 205, 87])   # BGR: add ~30 to each
+    videoPath = "testVod.mp4"
     
-    videoPath = "testVod.mp4"  # Put a test video here
-    
-    sampleRate = 2
-    roiSize = 125  # Changed from 200 to 150 (smaller square)
+    # Define parameters
+    sampleRate = 1
+    roiSize = 400  # CHANGE THIS from 125 to 400
     
     try:
+        # Get video metadata
+        metadata = getVideoMetadata(videoPath)
+        print(f"\nVideo Info:")
+        print(f"  Resolution: {metadata['width']}x{metadata['height']}")
+        print(f"  FPS: {metadata['fps']}")
+        print(f"  Duration: {metadata['duration']:.2f} seconds")
+        print(f"  Total Frames: {metadata['frameCount']}")
+        
         # Track crosshair
         positions = trackCrosshairInVideo(
             videoPath, 
             lowerBound, 
             upperBound, 
             sampleRate=sampleRate,
-            roiSize=roiSize  # Use the smaller ROI
+            roiSize=roiSize
         )
         
         print(f"\n=== RESULTS ===")
@@ -252,6 +262,9 @@ if __name__ == "__main__":
             
             print(f"First position: Frame {smoothedPositions[0]['frameNumber']} at ({smoothedPositions[0]['x']}, {smoothedPositions[0]['y']})")
             print(f"Last position: Frame {smoothedPositions[-1]['frameNumber']} at ({smoothedPositions[-1]['x']}, {smoothedPositions[-1]['y']})")
+            
+            # Save tracking data to JSON
+            saveTrackingData(smoothedPositions, "tracking_data.json")
             
             # Create visualization with smoothed data
             visualizeCrosshairPath(videoPath, smoothedPositions, "visualized_output.mp4")
